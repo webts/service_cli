@@ -1,0 +1,6 @@
+{
+  "messageBus":{
+    "port":1883,
+    "host":"emqttd"
+  }
+}

@@ -1,0 +1,21 @@
+FROM {{=it.image}}
+ENV NODE_ENV={{=it.node_env}}
+
+# Set a working directory
+WORKDIR /usr/src/app
+
+COPY {{=it.buildPath}}/package.json {{=it.buildPath}}/yarn.lock {{=it.buildPath}}/package-lock.json ./
+COPY {{=it.buildPath}}/.babelrc  {{=it.buildPath}}/run.config.json {{=it.buildPath}}/app.js ./
+COPY {{~ it.copy :f}}{{=it.buildPath}}/{{=f}} {{~}}./
+RUN set -ex;\
+    if [ "$NODE_ENV"  = "production" ]; then \
+    yarn install --production --no-cache --frozen-lockfile; \
+    else \
+    mkdir -m 777 build
+    yarn install --no-cache --frozen-lockfile; \
+    chown -R node:node build node_modules package.json yarn.lock; \
+    fi;
+
+USER node
+
+CMD [{{~ it.cmd :cmd}}{{=cmd}} {{~}}]

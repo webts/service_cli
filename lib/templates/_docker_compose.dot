@@ -1,0 +1,55 @@
+version: 2.1
+services:
+{{~ it.services :service }}
+    {{=service.container_name}}:
+        image:{{=service.image}}
+        container_name: {{=service.container_name}}
+        build: {{=service.buildPath}}
+    {{? service.environment }}
+        environment:
+        {{~ Object.keys(service.environment) :env}}
+            {{=env}}:{{=service.environment[evn]}}
+        {{~}}
+    {{?}}
+    {{? service.expose}}
+        expose: {{=service.expose}}
+    {{?}}
+    {{? service.restart}}
+        restart: {{=service.restart}}
+    {{?}}
+    {{? service.depends_on }}
+        depends_on:
+        {{~ service.depends_on :dep}}
+            - {{=dep}}
+        {{~}}
+    {{?}}
+    {{? service.volumes }}
+    volumes:
+    {{~ service.volumes :vol}}
+        - {{=vol}}
+    {{~}}
+    {{?}}
+
+    {{? service.volumes_from }}
+    volumes_from:
+    {{~ service.volumes_from :vol}}
+        - {{=vol}}
+    {{~}}
+    {{?}}
+
+    {{? service.links }}
+    links:
+    {{~ service.links :link}}
+    - {{=link}}
+    {{~}}
+    {{?}}
+
+    {{? service.command}}
+    command: {{=service.command}}
+    {{?}}
+    {{? service.entry_point}}
+    entry_point: {{=service.entry_point}}
+    {{?}}
+
+
+{{~}}
