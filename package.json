@@ -1,6 +1,6 @@
 {
   "name": "micro-webservice-cli",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "CLI tool for microservice projects",
   "main": "index.js",
   "repository": "git@github.com:webts/service-cli.git",
@@ -11,7 +11,7 @@
     "cpy": "^6.0.0",
     "docker-compose": "^0.4.3",
     "docker-composer": "^2.0.1",
-    "dot": "^1.1.2",
+    "ejs": "^2.5.7",
     "globby": "^7.1.1",
     "immutable": "^3.8.2",
     "js-yaml": "^3.10.0"
@@ -27,7 +27,7 @@
   },
   "scripts": {
     "clean": "rm -r -f  dist",
-    "transpile": "babel ./lib -d ./dist --copy-files",
+    "transpile": "babel ./lib -d ./dist --copy-files --include-dotfiles",
     "build": "npm run clean && npm run transpile",
     "test": "echo no tests defined"
   },

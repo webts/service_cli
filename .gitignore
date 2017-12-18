@@ -388,3 +388,11 @@ OpenCover/
 !.vscode/launch.json
 !.vscode/extensions.json
 
+/services/
+defaults.yml
+dist/config/
+dist/templates/_app.config.js.dot
+dist/templates/babelrc.dot
+services/
+yarn.lock
+/yarn.lock

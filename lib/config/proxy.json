@@ -1,7 +1,6 @@
 {
   "proxyService": {
-    "port": 80,
-    "host": "redbird",
+    "port": 8080,
     "npm":[],
     "serviceClass": "micro-webservice.ServiceProxy"
   }

@@ -2,7 +2,7 @@ var factory = require('micro-webservice').ServiceFactory;
 var fs = require('fs');
 var child_process = require('child_process');
 
-configFile = './run.config.json';
+var configFile = './run.config.json';
 
 if(fs.existsSync(configFile)){
     try {

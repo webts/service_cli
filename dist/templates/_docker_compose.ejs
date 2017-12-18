@@ -1,0 +1,51 @@
+version: '<%= version %>'
+services:
+<% services.forEach(function(service){ %>
+    <%= service.name %>:
+        container_name: <%= service.container_name%>
+        image: <%= service.image %>
+        build: <%=service.buildPath%>
+    <% if('environment' in service){ %>
+        environment: <% if('inherit_env' in service){ %><%= service.inherit_env %><% }; %>
+        <% Object.keys(service.environment).forEach(function(env){%>
+            <%= env %>:<%= service.environment[evn] %>
+        <% }); %>
+    <% }; %>
+    <% if('expose' in  service){ %>
+        expose: <%= service.expose %>
+    <% }; %>
+    <% if('restart' in service){ %>
+        restart: <%= service.restart %>
+    <% }; %>
+    <% if('depends_on'  in service){ %>
+        depends_on:
+        <% service.depends_on.forEach(function(dep){%>
+            - <%=dep%>
+        <% }); %>
+    <% }; %>
+    <% if('volumes'  in service){%>
+        volumes:
+        <% service.volumes.forEach(function(vol){ %>
+            - <%= vol%>
+        <% }); %>
+    <% }; %>
+    <% if('volumes_from'  in service){%>
+        volumes_from:
+        <% service.volumes_from.forEach(function(vol){ %>
+            - <%=vol%>
+        <% }); %>
+    <% }; %>
+    <% if('links'  in service){%>
+        links:
+        <%~ service.links.forEach(function(link){ %>
+            - <%=link%>
+        <% }); %>
+    <% }; %>
+    <% if('entry_point'  in service){%>
+        entry_point: <%=service.entry_point%>
+    <% }; %>
+    <% if('command'  in service){%>
+        command: <%=service.command%>
+    <% }; %>
+
+<% });%>

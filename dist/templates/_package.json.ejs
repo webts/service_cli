@@ -1,5 +1,5 @@
 {
-  "name": "{{=it.name}}",
+  "name": "<%= name %>",
   "version": "0.1.0",
   "description":"generated package.json",
   "license": "Commercial",
@@ -7,19 +7,18 @@
     "micro-webservice":"latest",
     "babel-cli":"latest",
     "babel-core":"latest",
-    "nodemon":"latest",
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
     "babel-plugin-transform-object-assign": "^6.22.0",
     "babel-preset-env": "latest",
-    "pm2",
-  {{~ it.npm :p}}
-    "{{=p}}":"latest",
-  {{~}}
+    "pm2":"latest"<% if(npm && npm.length > 0){%>,<%}%>
+  <% npm.forEach(function(p){ %>
+    "<%= p %>":"latest",
+  <% }); %>
   },
   "scripts": {
     "clean": "rm -rf build",
-    "transpile": "babel ./src -d ./build --copy-files",
+    "transpile": "babel ./app -d ./build --copy-files",
     "build": "yarn clean && yarn transpile",
-    "start": "pm2 start app.js"
+    "start": "pm2 start app.config.js"
   }
 }

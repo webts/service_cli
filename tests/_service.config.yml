@@ -1,0 +1,5 @@
+kind: proxy
+name: proxy
+src:
+    - ./src/*.js
+npm: []

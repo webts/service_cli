@@ -25,17 +25,15 @@ var _dockerCompose = require('docker-compose');
 
 var _dockerCompose2 = _interopRequireDefault(_dockerCompose);
 
-var _dot = require('dot');
+var _ejs = require('ejs');
 
-var _dot2 = _interopRequireDefault(_dot);
+var _ejs2 = _interopRequireDefault(_ejs);
 
 var _util = require('util');
 
 var _fs = require('fs');
 
 var _path = require('path');
-
-var _immutable = require('immutable');
 
 var _jsYaml = require('js-yaml');
 
@@ -45,45 +43,58 @@ const start = (0, _util.promisify)(_dockerCompose2.default.up);
 const stop = (0, _util.promisify)(_dockerCompose2.default.stop);
 const exec = (0, _util.promisify)(require('child_process').exec, { multiArgs: true });
 
-const generateYml = _dot2.default.template((0, _fs.readFileSync)(__dirname + '/../templates/_docker_compose.dot').toString());
-const generateDockerfile = _dot2.default.template((0, _fs.readFileSync)(__dirname + '/../templates/_dockerfile.dot').toString());
-
 function generateFiles(configs) {
     let compose = {
-        version: '3',
+        version: '2.1',
         services: []
     };
 
     configs.map(config => {
 
-        if ('port' in config) {
-            config.expose = config.port.toString();
-        }
+        // if ('port' in config) {
+        //     config.expose = config.port.toString();
+        // }
         if (!('ports' in config)) {
-            config.ports = [`${config.expose}:${config.expose}`];
+            config.ports = [`${config.port}:${config.port}`];
         }
         if (!('buildPath' in config)) {
-            config.buildPath = config.root;
+            config.buildPath = (0, _fs.realpathSync)(config.root).replace(/\\/g, '/');
         }
 
         if (typeof config.cmd === 'string') {
-            config.command = config.cmd;
-            config.cmd = config.cmd.split(/\s+/);
+            //config.command = config.cmd;
+            config.cmd = config.cmd.split(/\s+/).map(c => `"${c}"`).join(',');
+        }
+
+        if ('copy' in config) {
+            let paths = config.copy.map(p => {
+                return { resolvedPath: (0, _path.resolve)(config.root, (0, _path.dirname)(p)), original: (0, _path.dirname)(p) };
+            }).concat({ resolvedPath: (0, _path.resolve)(config.root, './app.js'), original: './app.js' }, { resolvedPath: (0, _path.resolve)(config.root, './package.json'), original: './package.json' }, { resolvedPath: (0, _path.resolve)(config.root, './run.config.json'), original: './run.config.json' });
+
+            config.volumes = paths.map(p => {
+                return `${(0, _fs.realpathSync)(p.resolvedPath)}:${p.original.replace('./', '/usr/src/app/')}`;
+            });
+
+            config.copy = paths.map(p => {
+                return (0, _fs.realpathSync)(p.resolvedPath).replace(/\\/g, '/');
+            });
         }
 
         config.container_name = config.host || config.name || config.container_name;
 
         //generate run config
         config.generated = true;
-        (0, _fs.writeFileSync)((0, _path.resolve)(config.buildPath, 'run.config.json'), JSON.stringify(config));
+
+        console.log(config);
+        (0, _fs.writeFileSync)((0, _path.resolve)(config.buildPath, 'run.config.json'), JSON.stringify(config, null, 4));
         //generate Dockerfile
-        (0, _fs.writeFileSync)((0, _path.resolve)(config.buildPath, 'Dockerfile'), generateDockerfile(config));
+        (0, _fs.writeFileSync)((0, _path.resolve)(config.buildPath, 'Dockerfile'), _ejs2.default.render((0, _fs.readFileSync)(__dirname + '/../templates/_dockerfile.ejs').toString(), config));
 
         compose.services.push(config);
     });
 
-    let yml = generateYml(compose);
-    (0, _fs.writeFileSync)(process.cwd() + '/docker-compose.yml', yml, { encoding: 'utf-8' });
+    (0, _fs.writeFileSync)((0, _path.resolve)(process.cwd(), 'docker-compose.yml'), _ejs2.default.render((0, _fs.readFileSync)(__dirname + '/../templates/_docker_compose.ejs').toString(), compose));
+
     console.log('docker-compose.yml generated');
 }
 
@@ -135,52 +146,54 @@ exports.default = () => {
         ignore: ['node_modules/**', 'build/**', 'lib/**', 'src/**']
     });
     return cfs.map(filePath => {
+        console.log('found at ' + filePath);
         let obj = { kind: '' };
 
-        const ext = (0, _path.extname)(filePath).toLowerCase;
+        const ext = (0, _path.extname)(filePath).toLowerCase();
+        console.log(ext);
         const parent = (0, _path.dirname)(filePath);
         try {
-            if (ext === 'json') {
+            if (ext === '.json') {
                 let content = (0, _fs.readFileSync)(filePath);
                 obj = JSON.parse(content);
-            } else if (ext === 'yml') {
+            } else if (ext === '.yml') {
                 obj = (0, _jsYaml.safeLoad)((0, _fs.readFileSync)(filePath), 'utf-8');
-            }
-
-            if (obj) {
-                obj = (0, _immutable.fromJS)(obj);
             }
         } catch (err) {
             console.error(err);
         }
-        obj.copy = [];
-
-        if ('deps' in obj) {
-            obj.src = obj.deps;
-        }
-
-        if ('src' in obj) {
-            if (Array.isArray(obj.src)) Array.prototype.push.apply(obj.copy, obj.src);else obj.copy.push(obj.src);
-        }
-
-        if ('views' in obj) {
-            if (Array.isArray(obj.views)) Array.prototype.push.apply(obj.copy, obj.views);else obj.copy.push(obj.views);
-        }
 
         obj.node_env = process.env.NODE_ENV || 'dev';
         obj.root = parent;
+
+        console.log(obj);
+        console.log('...');
         return obj;
     }).map(config => {
         switch (config.kind) {
             case "service":
-                config = _extends({}, _Defaults2.default.docker.service, config);
+                config = _extends({}, _Defaults2.default.docker.service, _Defaults2.default.service, config);
 
                 break;
             case 'proxy':
-                config = _extends({}, _Defaults2.default.docker.proxyService, config);
+                config = _extends({}, _Defaults2.default.docker.proxyService, _Defaults2.default.proxyService, config);
                 break;
-            case 'db':
-                config = _extends({}, _Defaults2.default.docker.db, config);
+        }
+
+        config = _extends({}, { db: _extends(_Defaults2.default.db, { logging: _Defaults2.default.logging }) }, { session: _extends(_Defaults2.default.session, { logging: _Defaults2.default.logging }) }, { messageBus: _extends(_Defaults2.default.messageBus, { logging: _Defaults2.default.logging }) }, { logging: _Defaults2.default.logging }, config);
+
+        config.copy = [];
+
+        if ('deps' in config) {
+            config.src = config.deps;
+        }
+
+        if ('src' in config) {
+            if (Array.isArray(config.src)) Array.prototype.push.apply(config.copy, config.src);else config.copy.push(config.src);
+        }
+
+        if ('views' in config) {
+            if (Array.isArray(config.views)) Array.prototype.push.apply(config.copy, config.views);else config.copy.push(config.views);
         }
 
         return config;
