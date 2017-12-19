@@ -1,0 +1,8 @@
+{
+  "proxyService": {
+    "port": 8080,
+    "npm":[],
+    "serviceClass": "micro-webservice.ServiceProxy"
+  }
+}
+

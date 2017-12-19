@@ -5,11 +5,16 @@
   "license": "Commercial",
   "dependencies": {
     "micro-webservice":"latest",
-    "babel-cli":"latest",
-    "babel-core":"latest",
-    "babel-plugin-transform-decorators-legacy": "^1.3.4",
-    "babel-plugin-transform-object-assign": "^6.22.0",
-    "babel-preset-env": "latest",
+    "@babel/cli": "latest",
+    "@babel/core": "latest",
+    "@babel/polyfill":"latest",
+    "@babel/plugin-transform-object-assign": "latest",
+    "@babel/plugin-proposal-class-properties": "latest",
+    "@babel/preset-env": "latest",
+    "@babel/preset-react": "latest",
+    "@babel/preset-flow":"latest",
+    "@babel/runtime": "latest",
+    "object-assign": "^4.1.1",
     "pm2":"latest"<% if(npm && npm.length > 0){%>,<%}%>
   <% npm.forEach(function(p){ %>
     "<%= p %>":"latest",

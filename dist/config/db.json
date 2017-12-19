@@ -1,0 +1,9 @@
+{
+  "db":{
+    "type":"mongodb",
+    "host": "mongo",
+    "port": "27017",
+    "username": "sytm8",
+    "password": "w38T52007"
+  }
+}
