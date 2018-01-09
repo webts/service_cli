@@ -5,8 +5,8 @@
       "cmd":"yarn start"
     },
     "proxyService":{
-      "image": "node:8.9.1-alpine",
-      "cmd":"yarn start"
+      "image": "traefik/latest",
+      "cmd":"--web --docker --docker.domain=docker.localhost --logLevel=INFO"
     }
   }
 }

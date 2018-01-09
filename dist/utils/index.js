@@ -79,6 +79,12 @@ function generateFiles(configs) {
       });
     }
 
+    let labels = [`${defaults.proxyService.name}.backend=${config.name}`, `${defaults.proxyService.name}.frontend.rule=${config.name}`];
+
+    if (!('labels' in config)) {
+      config.labels = labels;
+    }
+
     config.volumes = config.volumes || [];
     config.copy = config.copy || [];
     config.container_name = config.host || config.name || config.container_name; //generate run config
@@ -86,7 +92,7 @@ function generateFiles(configs) {
     config.generated = true;
     compose.services.push(config);
 
-    if (config.kind === 'service' || config.kind === 'proxy') {
+    if (config.kind === 'service') {
       if (!('buildPath' in config)) {
         config.buildPath = (0, _fs.realpathSync)(config.root).replace(/\\/g, '/');
       } //generate run config
@@ -154,7 +160,7 @@ async function build(config) {
 var _default = () => {
   const cfs = _glob.default.sync('**/service.config.?(js|json|yml)', {
     nodir: true,
-    ignore: ['node_modules/**', 'build/**', 'lib/**', 'src/**']
+    ignore: ['**/node_modules/**', 'build/**', 'lib/**', 'src/**', 'dist/**']
   });
 
   return cfs.map(filePath => {
@@ -212,11 +218,24 @@ var _default = () => {
             if (Array.isArray(config.views)) Array.prototype.push.apply(config.copy, config.views);else config.copy.push(config.views);
           }
 
+          if ('networks' in defaults && 'internal' in defaults.networks) {
+            config = _extends({
+              networks: 'internal'
+            }, config);
+          }
+
           break;
         }
 
       case 'proxy':
         config = _extends({}, defaults.docker.proxyService, defaults.proxyService, config);
+
+        if ('networks' in defaults && 'proxy' in defaults.networks) {
+          config = _extends({
+            networks: 'proxy'
+          }, config);
+        }
+
         break;
     }
 
@@ -225,3 +244,4 @@ var _default = () => {
 };
 
 exports.default = _default;
+//# sourceMappingURL=index.js.map

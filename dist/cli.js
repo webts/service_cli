@@ -25,13 +25,17 @@ delete defaults.__esModule;
 _commander.default.version('0.1.0').name('service_cli').description('Micro-webservice CLI');
 
 _commander.default.command('init').description('initiate default configuration').action(function () {
-  console.log('default ' + JSON.stringify(defaults));
+  let defs = defaults;
 
-  _fs.default.writeFileSync(_path.default.resolve(process.cwd(), 'defaults.yml'), _jsYaml.default.safeDump(defaults, {
-    indent: 4
-  }));
+  if (_fs.default.existsSync(_path.default.resolve(process.cwd(), 'defaults.yml'))) {
+    defs = _jsYaml.default.safeLoad(_path.default.resolve(process.cwd(), 'defaults.yml'));
 
-  console.log('defaults.yml created');
+    _fs.default.unlinkSync(_path.default.resolve(process.cwd(), 'defaults.yml'));
+  }
+
+  _fs.default.writeFileSync(_path.default.resolve(process.cwd(), 'defaults.js'), 'modules.export = ' + JSON.stringify(defaults) + ';');
+
+  console.log('defaults.js created');
 });
 
 _commander.default.command("build").description('generate docker files and docker compose').action(async function () {
@@ -121,3 +125,4 @@ _commander.default.command('create <serviceName> [startDir]').description('creat
 });
 
 _commander.default.parse(process.argv);
+//# sourceMappingURL=cli.js.map

@@ -1,6 +1,6 @@
 {
   "name": "micro-webservice-cli",
-  "version": "0.0.8",
+  "version": "0.0.9yar",
   "description": "CLI tool for microservice projects",
   "main": "index.js",
   "repository": "git@github.com:webts/service-cli.git",
@@ -10,7 +10,6 @@
     "commander": "^2.11.0",
     "cpy": "^6.0.0",
     "docker-compose": "^0.4.3",
-    "docker-composer": "^2.0.1",
     "ejs": "^2.5.7",
     "globby": "^7.1.1",
     "immutable": "^3.8.2",
@@ -19,21 +18,22 @@
   "devDependencies": {
     "@babel/cli": "latest",
     "@babel/core": "latest",
-    "@babel/polyfill": "latest",
-    "@babel/plugin-transform-object-assign": "latest",
     "@babel/plugin-proposal-class-properties": "latest",
+    "@babel/plugin-transform-object-assign": "latest",
+    "@babel/polyfill": "latest",
     "@babel/preset-env": "latest",
-    "@babel/preset-react": "latest",
     "@babel/preset-flow": "latest",
+    "@babel/preset-react": "latest",
     "@babel/runtime": "latest",
-    "object-assign": "^4.1.1",
-    "jest": "latest"
+    "jest": "latest",
+    "object-assign": "^4.1.1"
   },
   "scripts": {
     "clean": "rm -r -f  dist",
-    "transpile": "babel ./lib -d ./dist --copy-files --include-dotfiles",
+    "transpile": "babel ./lib -d ./dist --copy-files --include-dotfiles --source-maps",
     "build": "npm run clean && npm run transpile",
-    "test": "echo no tests defined"
+    "test": "echo no tests defined",
+    "prepublish": "npm run build"
   },
   "bin": {
     "service_cli": "dist/cli.js"

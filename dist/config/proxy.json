@@ -1,8 +1,19 @@
 {
   "proxyService": {
-    "port": 8080,
-    "npm":[],
-    "serviceClass": "micro-webservice.ServiceProxy"
+    "name":"traefik",
+    "port": 80,
+    "ports":[
+      "80:80",
+      "443:443",
+      "8080:8080"
+    ],
+    "labels":[
+      "traefik.enable=false"
+    ],
+    "volumes":[
+      "/var/run/docker.sock:/var/run/docker.sock",
+      "/dev/null:/traefik.toml"
+    ]
   }
 }
 
