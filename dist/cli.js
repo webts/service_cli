@@ -33,7 +33,7 @@ _commander.default.command('init').description('initiate default configuration')
     _fs.default.unlinkSync(_path.default.resolve(process.cwd(), 'defaults.yml'));
   }
 
-  _fs.default.writeFileSync(_path.default.resolve(process.cwd(), 'defaults.js'), 'modules.export = ' + JSON.stringify(defaults) + ';');
+  _fs.default.writeFileSync(_path.default.resolve(process.cwd(), 'defaults.js'), 'modules.export = \n' + JSON.stringify(defaults, null, 4) + ';');
 
   console.log('defaults.js created');
 });
