@@ -79,7 +79,7 @@ function generateFiles(configs) {
       });
     }
 
-    let labels = [`${defaults.proxyService.name}.backend=${config.name}`, `${defaults.proxyService.name}.frontend.rule=${config.name}`];
+    let labels = [`${defaults.proxyService.name}.backend=${config.name}`, `${defaults.proxyService.name}.frontend.rule=PathPrefix:/api/${config.name};PathStrip:/api`];
 
     if (!('labels' in config)) {
       config.labels = labels;

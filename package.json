@@ -26,10 +26,11 @@
     "@babel/runtime": "latest",
     "babel-7-jest": "^21.3.2",
     "jest": "latest",
-    "object-assign": "^4.1.1"
+    "object-assign": "^4.1.1",
+    "rimraf": "^2.6.2"
   },
   "scripts": {
-    "clean": "rm -r -f  dist",
+    "clean": "rimraf  dist/**",
     "transpile": "babel ./lib -d ./dist --copy-files --include-dotfiles --source-maps",
     "build": "npm run clean && npm run transpile",
     "test": "jest",
