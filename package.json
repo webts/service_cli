@@ -16,7 +16,6 @@
     "js-yaml": "^3.10.0"
   },
   "devDependencies": {
-    "@babel/cli": "latest",
     "@babel/core": "latest",
     "@babel/plugin-proposal-class-properties": "latest",
     "@babel/plugin-transform-object-assign": "latest",
@@ -25,6 +24,7 @@
     "@babel/preset-flow": "latest",
     "@babel/preset-react": "latest",
     "@babel/runtime": "latest",
+    "babel-7-jest": "^21.3.2",
     "jest": "latest",
     "object-assign": "^4.1.1"
   },
@@ -32,10 +32,16 @@
     "clean": "rm -r -f  dist",
     "transpile": "babel ./lib -d ./dist --copy-files --include-dotfiles --source-maps",
     "build": "npm run clean && npm run transpile",
-    "test": "echo no tests defined",
+    "test": "jest",
     "prepublish": "npm run build"
   },
   "bin": {
     "service_cli": "dist/cli.js"
+  },
+  "jest":{
+    "transform":{
+      ".js$":"babel-7-jest"
+    },
+    "roots":["./lib/","./tests/"]
   }
 }

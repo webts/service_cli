@@ -1,0 +1,1 @@
+babel ./lib -d ./dist --copy-files --include-dotfiles --source-maps
