@@ -1,6 +1,6 @@
 {
   "name": "micro-webservice-cli",
-  "version": "0.0.9yar",
+  "version": "0.0.11",
   "description": "CLI tool for microservice projects",
   "main": "index.js",
   "repository": "git@github.com:webts/service-cli.git",
@@ -13,7 +13,8 @@
     "ejs": "^2.5.7",
     "globby": "^7.1.1",
     "immutable": "^3.8.2",
-    "js-yaml": "^3.10.0"
+    "js-yaml": "^3.10.0",
+    "rimraf": "^2.6.2"
   },
   "devDependencies": {
     "@babel/core": "latest",
@@ -27,22 +28,26 @@
     "babel-7-jest": "^21.3.2",
     "jest": "latest",
     "object-assign": "^4.1.1",
-    "rimraf": "^2.6.2"
+    "watch": "^1.0.2"
   },
   "scripts": {
     "clean": "rimraf  dist/**",
     "transpile": "babel ./lib -d ./dist --copy-files --include-dotfiles --source-maps",
     "build": "npm run clean && npm run transpile",
-    "test": "jest",
-    "prepublish": "npm run build"
+    "test": "echo no tests defined",
+    "prepublish": "npm run build",
+    "dev": "watch \"yarn build -s\" lib/"
   },
   "bin": {
     "service_cli": "dist/cli.js"
   },
-  "jest":{
-    "transform":{
-      ".js$":"babel-7-jest"
+  "jest": {
+    "transform": {
+      ".js$": "babel-7-jest"
     },
-    "roots":["./lib/","./tests/"]
+    "roots": [
+      "./lib/",
+      "./tests/"
+    ]
   }
 }

@@ -13,11 +13,12 @@ var _jsYaml = _interopRequireDefault(require("js-yaml"));
 
 var _path = _interopRequireDefault(require("path"));
 
+var _child_process = require("child_process");
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-//import {buildService} from './utils/factory';
 let defaults = require(__dirname + '/config/Defaults').default;
 
 delete defaults.__esModule;
@@ -33,37 +34,56 @@ _commander.default.command('init').description('initiate default configuration')
     _fs.default.unlinkSync(_path.default.resolve(process.cwd(), 'defaults.yml'));
   }
 
-  _fs.default.writeFileSync(_path.default.resolve(process.cwd(), 'defaults.js'), 'modules.export = \n' + JSON.stringify(defaults, null, 4) + ';');
+  _fs.default.writeFileSync(_path.default.resolve(process.cwd(), 'defaults.js'), 'module.exports = \n' + JSON.stringify(defaults, null, 4) + ';');
 
   console.log('defaults.js created');
 });
 
-_commander.default.command("build").description('generate docker files and docker compose').action(async function () {
-  console.log('building...');
+_commander.default.command("clean").description('remove all service images').action(async function () {
   let configs = (0, _index.default)();
-  (0, _index.generateFiles)(configs);
-  await (0, _index.composeUp)();
+  const cmd = 'docker rm ' + configs.filter(cf => cf.kind === 'service').map(cf => cf.name).join(' ');
+  console.log('remove all service containers "' + cmd + '"');
+  await (0, _child_process.exec)(cmd);
+});
+
+_commander.default.command("build").description('generate docker files and docker compose').option('-g, --generateOnly', 'generate Dockerfiles without building images').action(async function (command) {
+  console.log('building...' + command.generateOnly);
+  let configs = (0, _index.default)();
+  (0, _index.generate)(configs, defaults);
+
+  if (!command.generateOnly) {
+    await (async () => {
+      const cmd = 'docker rm ' + configs.filter(cf => cf.kind === 'service').map(cf => cf.name).join(' ');
+      console.log('remove all service containes "' + cmd + '"');
+      await (0, _child_process.exec)(cmd);
+    })();
+    await (0, _index.composeUp)();
+  }
+
   console.log('build done');
 });
 
 _commander.default.command('run <configFile>').description('run the service with configuration').action(function (configFile) {
   if (typeof configFile === 'undefined') configFile = './run.config.json';
-  if (!configFile.endsWith('.json')) throw new Error('Invalid configuration file');
+
+  if (!configFile.endsWith('.json')) {}
+
   if (configFile === './') configFile = './run.config.json';
 
   if (_fs.default.existsSync(configFile)) {
     try {
       const cf = JSON.parse(_fs.default.readFileSync(configFile).toString());
-      cf.root = './build/';
+      if (!('root' in cf)) cf.root = _path.default.dirname(configFile);
       (0, _index.build)(cf).then(() => {
-        const service = buildService(cf);
-        if (service !== null) service.start();
+        (0, _child_process.exec)("yarn start", {
+          cwd: cf.root
+        });
       });
     } catch (err) {
       console.error(err);
     }
   } else {
-    console.log('Configuration file not exists');
+    console.log('Configuration file does not exist');
   }
 });
 
@@ -101,20 +121,6 @@ _commander.default.command('create <serviceName> [startDir]').description('creat
     _fs.default.mkdirSync(`${servicePath}/app/`);
 
     _fs.default.mkdirSync(`${servicePath}/app/src`);
-
-    let pkg = _ejs.default.render(_fs.default.readFileSync(__dirname + '/templates/_package.json.ejs').toString(), config);
-
-    let cfg = _ejs.default.render(_fs.default.readFileSync(__dirname + '/templates/_app.config.ejs').toString(), config);
-
-    _fs.default.writeFileSync(`${servicePath}/package.json`, pkg);
-
-    _fs.default.writeFileSync(`${servicePath}/app.config.js`, cfg);
-
-    _fs.default.writeFileSync(`${servicePath}/app.js`, _fs.default.readFileSync(__dirname + '/templates/app.js.ejs').toString());
-
-    _fs.default.writeFileSync(`${servicePath}/app/src/handler.js`, _fs.default.readFileSync(__dirname + '/templates/_handler.ejs').toString());
-
-    _fs.default.writeFileSync(`${servicePath}/.babelrc`, _fs.default.readFileSync(__dirname + '/templates/babelrc.ejs').toString());
 
     _fs.default.writeFileSync(`${servicePath}/service.config.yml`, _jsYaml.default.safeDump(config, {
       indent: 4

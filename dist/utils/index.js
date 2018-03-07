@@ -3,7 +3,6 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.generateFiles = generateFiles;
 exports.composeUp = composeUp;
 exports.composeStop = composeStop;
 exports.composeStart = composeStart;
@@ -17,13 +16,21 @@ var _dockerCompose = _interopRequireDefault(require("docker-compose"));
 
 var _ejs = _interopRequireDefault(require("ejs"));
 
+var _cpy = _interopRequireDefault(require("cpy"));
+
+var _rimraf = _interopRequireDefault(require("rimraf"));
+
 var _util = require("util");
 
-var _fs = require("fs");
+var _fs = _interopRequireWildcard(require("fs"));
 
-var _path = require("path");
+var _path = _interopRequireWildcard(require("path"));
 
 var _jsYaml = require("js-yaml");
+
+var _generator = _interopRequireDefault(require("./generator"));
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -37,76 +44,7 @@ const exec = (0, _util.promisify)(require('child_process').exec, {
 
 let defaults = require(__dirname + '/../config/Defaults').default;
 
-function generateFiles(configs) {
-  let compose = {
-    version: '2.1',
-    services: []
-  };
-  configs.map(config => {
-    // if ('port' in config) {
-    //     config.expose = config.port.toString();
-    // }
-    if (!('ports' in config) && 'port' in config) {
-      config.ports = [`${config.port}:${config.port}`];
-    }
-
-    if (typeof config.cmd === 'string') {
-      //config.command = config.cmd;
-      config.cmd = config.cmd.split(/\s+/).map(c => `"${c}"`).join(',');
-    }
-
-    if ('copy' in config) {
-      let paths = config.copy.map(p => {
-        return {
-          resolvedPath: (0, _path.resolve)(config.root, (0, _path.dirname)(p)),
-          original: (0, _path.dirname)(p)
-        };
-      }).concat({
-        resolvedPath: (0, _path.resolve)(config.root, './app.js'),
-        original: './app.js'
-      }, {
-        resolvedPath: (0, _path.resolve)(config.root, './package.json'),
-        original: './package.json'
-      }, {
-        resolvedPath: (0, _path.resolve)(config.root, './run.config.json'),
-        original: './run.config.json'
-      });
-      config.volumes = paths.map(p => {
-        return `${(0, _fs.realpathSync)(p.resolvedPath)}:${p.original.replace('./', '/usr/src/app/')}`;
-      });
-      config.copy = paths.map(p => {
-        return (0, _fs.realpathSync)(p.resolvedPath).replace(/\\/g, '/');
-      });
-    }
-
-    let labels = [`${defaults.proxyService.name}.backend=${config.name}`, `${defaults.proxyService.name}.frontend.rule=PathPrefix:/api/${config.name};PathStrip:/api`];
-
-    if (!('labels' in config)) {
-      config.labels = labels;
-    }
-
-    config.volumes = config.volumes || [];
-    config.copy = config.copy || [];
-    config.container_name = config.host || config.name || config.container_name; //generate run config
-
-    config.generated = true;
-    compose.services.push(config);
-
-    if (config.kind === 'service') {
-      if (!('buildPath' in config)) {
-        config.buildPath = (0, _fs.realpathSync)(config.root).replace(/\\/g, '/');
-      } //generate run config
-
-
-      (0, _fs.writeFileSync)((0, _path.resolve)(config.buildPath, 'run.config.json'), JSON.stringify(config, null, 4)); //generate Dockerfile
-
-      (0, _fs.writeFileSync)((0, _path.resolve)(config.buildPath, 'Dockerfile'), _ejs.default.render((0, _fs.readFileSync)(__dirname + '/../templates/_dockerfile.ejs').toString(), config));
-    }
-  });
-  (0, _fs.writeFileSync)((0, _path.resolve)(process.cwd(), 'docker-compose.yml'), _ejs.default.render((0, _fs.readFileSync)(__dirname + '/../templates/_docker_compose.ejs').toString(), compose));
-  (0, _fs.writeFileSync)((0, _path.resolve)(process.cwd(), 'docker-compose.yml'), (0, _fs.readFileSync)((0, _path.resolve)(process.cwd(), 'docker-compose.yml')).toString().replace(/^\s*[\r\n]/gm, ''));
-  console.log('docker-compose.yml generated');
-}
+module.exports.generate = _generator.default;
 
 async function composeUp(yml) {
   try {
@@ -153,8 +91,13 @@ async function cloneDB(db, media) {
 }
 
 async function build(config) {
-  await exec('npm install');
-  await exec('npm build');
+  console.log(`building ${config.name}`);
+  await exec('yarn install', {
+    cwd: config.root
+  });
+  await exec('yarn build', {
+    cwd: config.root
+  });
 }
 
 var _default = () => {
@@ -164,7 +107,6 @@ var _default = () => {
   });
 
   return cfs.map(filePath => {
-    console.log('found at ' + filePath);
     let obj = {
       kind: ''
     };
@@ -184,6 +126,7 @@ var _default = () => {
       console.error(err);
     }
 
+    console.log('found config ' + obj.name);
     obj.node_env = process.env.NODE_ENV || 'dev';
     obj.root = parent;
     return obj;
@@ -206,8 +149,24 @@ var _default = () => {
           }, config);
           config.copy = [];
 
-          if ('deps' in config) {
-            config.src = config.deps;
+          if (!'src' in config) {
+            if ('deps' in config) {
+              config.src = config.deps;
+            }
+          } else if ('deps' in config) {
+            let deps = [config.deps];
+            if (Array.isArray(config.deps)) deps = config.deps;
+            if (!_fs.default.existsSync(_path.default.join(config.root, 'app', 'lib'))) _fs.default.mkdirSync(_path.default.join(config.root, 'app', 'lib'));
+            if (!_fs.default.existsSync(_path.default.join(config.root, 'app', 'lib', 'deps'))) _fs.default.mkdirSync(_path.default.join(config.root, 'app', 'lib', 'deps'));else _rimraf.default.sync(_path.default.join(config.root, 'app', 'lib', 'deps') + "/**");
+            deps.forEach(dep => {
+              console.log('cpy ' + dep);
+              (0, _cpy.default)(dep, _path.default.join(config.root, 'app', 'lib', 'deps'), {
+                cwd: process.cwd(),
+                parents: false,
+                nodir: true
+              });
+            });
+            config.copy.push('./app/lib/deps');
           }
 
           if ('src' in config) {
@@ -218,10 +177,20 @@ var _default = () => {
             if (Array.isArray(config.views)) Array.prototype.push.apply(config.copy, config.views);else config.copy.push(config.views);
           }
 
+          if (typeof config.copy !== 'undefined') {
+            config.copy.forEach(p => {
+              if (p.startsWith('./')) p = p.replace('./', config.root + '/');
+            });
+          }
+
           if ('networks' in defaults && 'internal' in defaults.networks) {
             config = _extends({
               networks: 'internal'
             }, config);
+          }
+
+          if (!'working_dir' in config) {
+            config.working_dir = '/usr/src/app';
           }
 
           break;

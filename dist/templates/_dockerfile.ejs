@@ -1,19 +1,37 @@
 FROM <%- image%>
-ENV NODE_ENV=<%- node_env%>
 
+# Set image metadata
+LABEL traefik.port=8080
+LABEL traefik.backend="analytics"
+LABEL traefik.frontend.rule="PathPrefix:/api/analytics;PathStrip:/api"
+LABEL traefik.frontend.priority=100
+LABEL traefik.frontend.passHostHeader=true
+LABEL traefik.protocol="http,https"
+
+ENV NODE_ENV=<%- node_env%>
+ENV PORT=<%- port%>
 # Set a working directory
+
+RUN mkdir -p /usr/src/app
+
 WORKDIR /usr/src/app
-<% if(copy && copy.length > 0) { %>
-COPY <% copy.forEach(function(cpy){ %><%- cpy%> <% }); %> ./
-<% } %>
-RUN set -ex;\
-    if [ "$NODE_ENV"  = "production" ]; then \
-    yarn install --production --no-cache --frozen-lockfile; \
-    else \
-    mkdir -m 777 build\
-    yarn install --no-cache --frozen-lockfile; \
-    chown -R node:node build node_modules package.json yarn.lock; \
-    fi;
+
+RUN mkdir build
+
+COPY package.json .
+
+RUN apk add --no-cache --virtual .gyp \
+        python \
+        make \
+        g++ \
+    && npm install \
+    && apk del .gyp
+
+COPY . .
+
+RUN ls
+
+EXPOSE <%- port %>
 
 USER node
 

@@ -2,7 +2,8 @@
   "docker": {
     "service": {
       "image": "node:8.9.1-alpine",
-      "cmd":"yarn start"
+      "cmd":"yarn start",
+      "volumes":["/usr/src/app/node_modules"]
     },
     "proxyService":{
       "image": "traefik/latest",
