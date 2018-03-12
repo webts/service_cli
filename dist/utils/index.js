@@ -189,7 +189,7 @@ var _default = () => {
             }, config);
           }
 
-          if (!'working_dir' in config) {
+          if (!('working_dir' in config)) {
             config.working_dir = '/usr/src/app';
           }
 

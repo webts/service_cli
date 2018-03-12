@@ -1,12 +1,15 @@
 {
   "name": "micro-webservice-cli",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "CLI tool for microservice projects",
   "main": "index.js",
   "repository": "git@github.com:webts/service-cli.git",
   "author": "Minh Tran(gtdminh@gmail.com)",
   "license": "MIT",
   "dependencies": {
+    "@babel/core": "^7.0.0-beta.40",
+    "@babel/polyfill": "latest",
+    "@babel/runtime": "latest",
     "commander": "^2.11.0",
     "cpy": "^6.0.0",
     "docker-compose": "^0.4.3",
@@ -17,14 +20,11 @@
     "rimraf": "^2.6.2"
   },
   "devDependencies": {
-    "@babel/core": "latest",
     "@babel/plugin-proposal-class-properties": "latest",
     "@babel/plugin-transform-object-assign": "latest",
-    "@babel/polyfill": "latest",
     "@babel/preset-env": "latest",
     "@babel/preset-flow": "latest",
     "@babel/preset-react": "latest",
-    "@babel/runtime": "latest",
     "babel-7-jest": "^21.3.2",
     "jest": "latest",
     "object-assign": "^4.1.1",
