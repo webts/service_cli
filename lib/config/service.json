@@ -1,7 +1,18 @@
 {
   "service": {
-    "port":8080,
-    "npm": [],
-    "serviceClass": "micro-webservice.WebService"
+    "port": 8080,
+    "npm": [
+      "@babel/core",
+      "@babel/polyfill",
+      "@babel/plugin-transform-object-assign",
+      "@babel/plugin-proposal-class-properties",
+      "@babel/preset-env",
+      "@babel/preset-react",
+      "@babel/preset-flow",
+      "@babel/runtime",
+      "object-assign",
+      "mwservice"
+    ],
+    "serviceClass": "mwservice.WebService"
   }
 }

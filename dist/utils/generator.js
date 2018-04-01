@@ -55,6 +55,9 @@ var _default = (configs, defaults) => {
           resolvedPath: (0, _path.resolve)(config.root, "./package.json"),
           original: "./package.json"
         }, {
+          resolvedPath: (0, _path.resolve)(config.root, "./package-lock.json"),
+          original: "./package-lock.json"
+        }, {
           resolvedPath: (0, _path.resolve)(config.root, "./run.config.json"),
           original: "./run.config.json"
         });
@@ -62,14 +65,14 @@ var _default = (configs, defaults) => {
         const realRoot = (0, _fs.realpathSync)(config.root);
         config.volumes = config.volumes.concat(paths.map(p => {
           return `./${_path.default.join('./', config.root, p.original).replace(/\\/g, '/')}:${p.original.replace("./", "/usr/src/app/").replace(config.root, "/usr/src/app/").replace(realRoot, "/usr/src/app/").replace(/\.\.\//g, "")}`;
-        }));
-        config.volumes = [`./${config.root}:/usr/src/app`].concat(config.volumes);
+        })); //config.volumes = [`./${config.root}:/usr/src/app`].concat(config.volumes);
+
         config.copy = paths.map(p => {
           return p.original.replace(/\\/g, "/");
         });
       }
 
-      labels = [`${defaults.proxyService.name}.port=${config.port}`, `${defaults.proxyService.name}.backend=${config.name}`, `${defaults.proxyService.name}.frontend.rule=PathPrefix:/api/${config.name};PathStrip:/api`, `${defaults.proxyService.name}.frontend.priority=100`, `${defaults.proxyService.name}.frontend.passHostHeader=true`, `${defaults.proxyService.name}.protocol=http,https`];
+      labels = [`${defaults.proxyService.name}.port=${config.port}`, `${defaults.proxyService.name}.backend=${config.name}`, `${defaults.proxyService.name}.frontend.rule=PathPrefix: /api/${config.name}`, `${defaults.proxyService.name}.frontend.priority=100`, `${defaults.proxyService.name}.frontend.passHostHeader=true`, `${defaults.proxyService.name}.protocol=http,https`];
       console.log("writing config file " + (0, _path.resolve)(config.buildPath, "run.config.json")); //generate run config
 
       (0, _fs.writeFileSync)((0, _path.resolve)(config.buildPath, "run.config.json"), JSON.stringify(config, null, 4)); //generate Dockerfile
@@ -85,6 +88,7 @@ var _default = (configs, defaults) => {
       (0, _fs.writeFileSync)(`${config.buildPath}/app.js`, (0, _fs.readFileSync)(__dirname + "/../templates/app.js.ejs").toString());
       (0, _fs.writeFileSync)(`${config.buildPath}/app/src/handler.js`, (0, _fs.readFileSync)(__dirname + "/../templates/_handler.ejs").toString());
       (0, _fs.writeFileSync)(`${config.buildPath}/.babelrc`, (0, _fs.readFileSync)(__dirname + "/../templates/babelrc.ejs").toString());
+      (0, _fs.writeFileSync)(`${config.buildPath}/.dockerignore`, (0, _fs.readFileSync)(__dirname + "/../templates/_dockerignore.ejs").toString());
     }
 
     if (!("labels" in config) && labels.length > 0) {

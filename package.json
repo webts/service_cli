@@ -1,6 +1,6 @@
 {
   "name": "micro-webservice-cli",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "CLI tool for microservice projects",
   "main": "index.js",
   "repository": "git@github.com:webts/service-cli.git",

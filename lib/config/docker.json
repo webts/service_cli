@@ -3,7 +3,7 @@
     "service": {
       "image": "novemberde/node-pm2",
       "cmd":"yarn start",
-      "volumes":["/usr/src/app/node_modules"]
+      "volumes":["/usr/src/app/node_modules/"]
     },
     "proxyService":{
       "image": "traefik/latest",

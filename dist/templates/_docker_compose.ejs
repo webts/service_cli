@@ -1,65 +1,65 @@
 version: '<%= version %>'
 services: <% services.forEach(function(service){ %>
-    <%= service.name %>:
-        container_name: <%= service.container_name%>
-        image: <%= service.image %>
+  <%= service.name %>:
+    container_name: <%= service.container_name%>
+    image: <%= service.image %>
     <% if('buildPath' in  service){ %>
-        build: ./<%=service.buildPath %>
+    build: ./<%=service.buildPath %>
     <% } %>
     <% if('working_dir' in  service){ %>
-        working_dir: /usr/src/app
+    working_dir: /usr/src/app
     <% } %>    
     <% if('volumes_from'  in service && service.volumes_from && service.volumes_from.length > 0){ %>
-        volumes_from: <% service.volumes_from.forEach(function(vol){ %>
-            - <%- vol%>
+    volumes_from:<% service.volumes_from.forEach(function(vol){ %>
+      - <%- vol%>
         <% }) %>
     <% } %>
     <% if('volumes'  in service && service.volumes && service.volumes.length > 0){ %>
-        volumes: <% service.volumes.forEach(function(vol){ %>
-            - <%- vol%>
-        <% }); %>
+    volumes:<% service.volumes.forEach(function(vol){ %>
+      - <%- vol%>
+    <% }); %>
     <% } %>
 
     <% if('environment' in service && service.environment && service.environment.length > 0){ %>
-        environment: <% if('inherit_env' in service){ %><%- service.inherit_env %><% } %> <% service.environment.forEach(function(env){ %>
-            <%- env %>
-        <% }) %>
+    environment: <% if('inherit_env' in service){ %><%- service.inherit_env %><% } %><% service.environment.forEach(function(env){ %>
+      <%- env %>
+    <% }) %>
     <% } %>
     <% if('expose' in  service){ %>
-        expose: <%- service.expose %>
+    expose: <%- service.expose %>
     <% } %>
     <% if('restart' in service){ %>
-        restart: <%= service.restart %>
+    restart: <%= service.restart %>
     <% } %>
     <% if('ports'  in service && service.ports && service.ports.length > 0){ %>
-        ports: <% service.ports.forEach(function(ps){ %>
-            - <%- ps%>
-        <% }) %>
+    ports:<% service.ports.forEach(function(ps){ %>
+      - <%- ps%>
+    <% }) %>
     <% } %>
     <% if('depends_on'  in service && service.depends_on && service.depends_on.length > 0){ %>
-        depends_on: <% service.depends_on.forEach(function(dep){%>
-            - <%- dep%>
-        <% }) %>
+    depends_on:<% service.depends_on.forEach(function(dep){%>
+      - <%- dep%>
+    <% }) %>
     <% } %>
     <% if('links'  in service && service.links && service.links.length > 0){ %>
-        links: <%~ service.links.forEach(function(link){ %>
-            - <%- link%>
-        <% }) %>
+    links:<%~ service.links.forEach(function(link){ %>
+      - <%- link%>
+    <% }) %>
     <% } %>
     <% if('entry_point'  in service){ %>
-        entry_point: <%- service.entry_point %>
+    entry_point: <%- service.entry_point %>
     <% } %>
     <% if('command'  in service){ %>
-        command: <%- service.command%>
+    command: <%- service.command%>
     <% } %>
-    <% if('labels' in service) { %>
-        labels: <% service.labels.forEach(function(lbl){ %>
-            - <%- '"' + lbl + '"' %>
-        <% }) %>
+    <% if('labels' in service && service.labels && service.labels.length > 0) { %>
+    labels:<% service.labels.forEach(function(lbl){ %>
+      - <%- '"' + lbl + '"' %>
+    <% }) %>
     <% } %>
     
     <% if('network'  in service){ %>
-        network: <%- service.network %>
+    network: <%- service.network %>
     <% } %>
 
 <% }) %>
