@@ -9,7 +9,7 @@ var _path = _interopRequireWildcard(require("path"));
 
 var _ejs = _interopRequireDefault(require("ejs"));
 
-var _fs = require("fs");
+var _fs = _interopRequireWildcard(require("fs"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -72,23 +72,29 @@ var _default = (configs, defaults) => {
         });
       }
 
-      labels = [`${defaults.proxyService.name}.port=${config.port}`, `${defaults.proxyService.name}.backend=${config.name}`, `${defaults.proxyService.name}.frontend.rule=PathPrefix: /api/${config.name}`, `${defaults.proxyService.name}.frontend.priority=100`, `${defaults.proxyService.name}.frontend.passHostHeader=true`, `${defaults.proxyService.name}.protocol=http,https`];
+      labels = [`${defaults.proxyService.name}.port=${config.port}`, `${defaults.proxyService.name}.backend=${config.name}`, `${defaults.proxyService.name}.frontend.rule=PathPrefix:/api/${config.name}`, `${defaults.proxyService.name}.frontend.priority=100`, `${defaults.proxyService.name}.frontend.entryPoints=http,https`];
       console.log("writing config file " + (0, _path.resolve)(config.buildPath, "run.config.json")); //generate run config
 
       (0, _fs.writeFileSync)((0, _path.resolve)(config.buildPath, "run.config.json"), JSON.stringify(config, null, 4)); //generate Dockerfile
 
       (0, _fs.writeFileSync)((0, _path.resolve)(config.buildPath, "Dockerfile"), _ejs.default.render((0, _fs.readFileSync)(__dirname + "/../templates/_dockerfile.ejs").toString(), config));
 
-      let pkg = _ejs.default.render((0, _fs.readFileSync)(__dirname + "/../templates/_package.json.ejs").toString(), config);
+      if (!_fs.default.existsSync(`${config.buildPath}/package.json`)) {
+        let pkg = _ejs.default.render((0, _fs.readFileSync)(__dirname + "/../templates/_package.json.ejs").toString(), config);
 
-      let cfg = _ejs.default.render((0, _fs.readFileSync)(__dirname + "/../templates/_app.config.ejs").toString(), config);
+        let cfg = _ejs.default.render((0, _fs.readFileSync)(__dirname + "/../templates/_app.config.ejs").toString(), config);
 
-      (0, _fs.writeFileSync)(`${config.buildPath}/package.json`, pkg);
-      (0, _fs.writeFileSync)(`${config.buildPath}/app.config.js`, cfg);
-      (0, _fs.writeFileSync)(`${config.buildPath}/app.js`, (0, _fs.readFileSync)(__dirname + "/../templates/app.js.ejs").toString());
-      (0, _fs.writeFileSync)(`${config.buildPath}/app/src/handler.js`, (0, _fs.readFileSync)(__dirname + "/../templates/_handler.ejs").toString());
-      (0, _fs.writeFileSync)(`${config.buildPath}/.babelrc`, (0, _fs.readFileSync)(__dirname + "/../templates/babelrc.ejs").toString());
-      (0, _fs.writeFileSync)(`${config.buildPath}/.dockerignore`, (0, _fs.readFileSync)(__dirname + "/../templates/_dockerignore.ejs").toString());
+        (0, _fs.writeFileSync)(`${config.buildPath}/package.json`, pkg);
+        (0, _fs.writeFileSync)(`${config.buildPath}/app/src/handler.js`, (0, _fs.readFileSync)(__dirname + "/../templates/_handler.ejs").toString());
+        (0, _fs.writeFileSync)(`${config.buildPath}/app.config.js`, cfg);
+        (0, _fs.writeFileSync)(`${config.buildPath}/app.js`, (0, _fs.readFileSync)(__dirname + "/../templates/app.js.ejs").toString());
+        (0, _fs.writeFileSync)(`${config.buildPath}/.babelrc`, (0, _fs.readFileSync)(__dirname + "/../templates/babelrc.ejs").toString());
+        (0, _fs.writeFileSync)(`${config.buildPath}/.dockerignore`, (0, _fs.readFileSync)(__dirname + "/../templates/_dockerignore.ejs").toString());
+      }
+
+      if (!_fs.default.existsSync(`${config.buildPath}/app.test.js`)) {
+        (0, _fs.writeFileSync)(`${config.buildPath}/app.test.js`, (0, _fs.readFileSync)(__dirname + "/../templates/app.test.js.ejs").toString());
+      }
     }
 
     if (!("labels" in config) && labels.length > 0) {

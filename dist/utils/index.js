@@ -166,6 +166,7 @@ var _default = () => {
                 nodir: true
               });
             });
+            config.deps = ['./app/lib/deps/**'];
             config.copy.push('./app/lib/deps');
           }
 

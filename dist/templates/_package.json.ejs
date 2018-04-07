@@ -12,6 +12,7 @@
     "clean": "rm -rf build",
     "transpile": "./node_modules/.bin/babel ./app -d ./build --copy-files",
     "build": "yarn clean && yarn transpile",
-    "start": "if [ ${NODE_ENV} = \"production\" ]; then ./node_modules/.bin/pm2-docker start app.config.js; else node app.js; fi"
+    "start": "pm2-dev start app.config.js",
+    "dev": "node app.js"
   }
 }
