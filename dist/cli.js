@@ -1,4 +1,4 @@
-#!/usr/bin/env 
+#!/usr/bin/env node
 "use strict";
 
 var _commander = _interopRequireDefault(require("commander"));
