@@ -2,10 +2,7 @@ version: '<%= version %>'
 services: <% services.forEach(function(service){ %>
   <%= service.name %>:
     container_name: <%= service.container_name%>
-    image: <%= service.image %>
-    <% if('buildPath' in  service){ %>
-    build: ./<%=service.buildPath %>
-    <% } %>
+    image: <%= service.image %>    
     <% if('working_dir' in  service){ %>
     working_dir: /usr/src/app
     <% } %>    

@@ -2,12 +2,12 @@
   "docker": {
     "service": {
       "image": "novemberde/node-pm2",
-      "cmd":"yarn start",
-      "volumes":["/usr/src/app/node_modules/"]
+      "cmd": "yarn start",
+      "volumes": []
     },
-    "proxyService":{
+    "proxyService": {
       "image": "traefik/latest",
-      "cmd":"--web --docker --docker.domain=docker.localhost --logLevel=INFO"
+      "cmd": "--web --docker --docker.domain=docker.localhost --logLevel=INFO"
     }
   }
 }

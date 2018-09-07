@@ -21,9 +21,8 @@ var _default = (configs, defaults) => {
     services: []
   };
   configs.forEach(config => {
-    // if (!('ports' in config) && 'port' in config) {
-    //     config.ports = [`${config.port}:${config.port}`];
-    // }
+    // if (!('ports' in config) && 'port' in config) {     config.ports =
+    // [`${config.port}:${config.port}`]; }
     if (typeof config.cmd === "string") {
       config.command = config.cmd;
       config.cmd = config.cmd.split(/\s+/).map(c => `"${c}"`).join(",");
@@ -60,6 +59,9 @@ var _default = (configs, defaults) => {
         }, {
           resolvedPath: (0, _path.resolve)(config.root, "./run.config.json"),
           original: "./run.config.json"
+        }, {
+          resolvedPath: (0, _path.resolve)(config.root, "./node_modules"),
+          original: "./node_modules"
         });
         if (!("volumes" in config) || typeof config.volumes === 'undefined') config.volumes = [];
         const realRoot = (0, _fs.realpathSync)(config.root);

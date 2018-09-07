@@ -10,7 +10,7 @@
   },
   "scripts": {
     "clean": "rm -rf build",
-    "transpile": "./node_modules/.bin/babel ./app -d ./build --copy-files",
+    "transpile": "./node_modules/.bin/babel ./app -d ./build/app --copy-files",
     "build": "yarn clean && yarn transpile",
     "start": "pm2-dev start app.config.js",
     "dev": "node app.js"

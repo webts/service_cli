@@ -1,4 +1,4 @@
-#! /usr/bin/env node
+#!/usr/bin/env 
 "use strict";
 
 var _commander = _interopRequireDefault(require("commander"));
@@ -34,7 +34,7 @@ _commander.default.command('init').description('initiate default configuration')
     _fs.default.unlinkSync(_path.default.resolve(process.cwd(), 'defaults.yml'));
   }
 
-  _fs.default.writeFileSync(_path.default.resolve(process.cwd(), 'defaults.js'), 'module.exports = \n' + JSON.stringify(defaults, null, 4) + ';');
+  _fs.default.writeFileSync(_path.default.resolve(process.cwd(), 'defaults.js'), 'module.exports = \n' + JSON.stringify(defs, null, 4) + ';');
 
   console.log('defaults.js created');
 });
@@ -57,10 +57,8 @@ _commander.default.command("build").description('generate docker files and docke
       console.log('remove all service containes "' + cmd + '"');
       await (0, _child_process.exec)(cmd);
     })();
-    await (0, _index.composeUp)();
-  }
-
-  console.log('build done');
+    Promise.all(configs.map(async cf => await (0, _child_process.exec)("npm i && npm run build"))).then(() => (0, _index.composeUp)().then(() => console.log('build done')));
+  } else console.log('build done');
 });
 
 _commander.default.command('run <configFile>').description('run the service with configuration').action(function (configFile) {

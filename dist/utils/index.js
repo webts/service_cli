@@ -149,7 +149,7 @@ var _default = () => {
           }, config);
           config.copy = [];
 
-          if (!'src' in config) {
+          if (!('src' in config)) {
             if ('deps' in config) {
               config.src = config.deps;
             }

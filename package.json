@@ -7,7 +7,7 @@
   "author": "Minh Tran(gtdminh@gmail.com)",
   "license": "MIT",
   "dependencies": {
-    "@babel/core": "^7.0.0-beta.40",
+    "@babel/core": "latest",
     "@babel/polyfill": "latest",
     "@babel/runtime": "latest",
     "commander": "^2.11.0",
@@ -20,19 +20,18 @@
     "rimraf": "^2.6.2"
   },
   "devDependencies": {
+    "@babel/cli": "latest",
     "@babel/plugin-proposal-class-properties": "latest",
     "@babel/plugin-transform-object-assign": "latest",
     "@babel/preset-env": "latest",
     "@babel/preset-flow": "latest",
     "@babel/preset-react": "latest",
-    "babel-7-jest": "^21.3.2",
-    "jest": "latest",
     "object-assign": "^4.1.1",
     "watch": "^1.0.2"
   },
   "scripts": {
     "clean": "rimraf  dist/**",
-    "transpile": "babel ./lib -d ./dist --copy-files --include-dotfiles --source-maps",
+    "transpile": "./node_modules/.bin/babel ./lib -d ./dist --copy-files --include-dotfiles --source-maps",
     "build": "npm run clean && npm run transpile",
     "test": "echo no tests defined",
     "prepublish": "npm run build",
@@ -40,14 +39,5 @@
   },
   "bin": {
     "service_cli": "dist/cli.js"
-  },
-  "jest": {
-    "transform": {
-      ".js$": "babel-7-jest"
-    },
-    "roots": [
-      "./lib/",
-      "./tests/"
-    ]
   }
 }

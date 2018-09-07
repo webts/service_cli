@@ -13,13 +13,14 @@ RUN chmod 777 build
 RUN mkdir -p logs
 RUN chmod 777 logs
 
+RUN mkdir -p node_modules
+RUN chmod 777 node_modules
+
 ADD package.json package-lock.json ./
 
-RUN npm install
+COPY ./node_modules ./node_modules
 
-COPY . .
-
-RUN tree
+COPY ./build ./build
 
 EXPOSE <%- port %>
 
