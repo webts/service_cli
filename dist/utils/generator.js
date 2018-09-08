@@ -62,6 +62,9 @@ var _default = (configs, defaults) => {
         }, {
           resolvedPath: (0, _path.resolve)(config.root, "./node_modules"),
           original: "./node_modules"
+        }, {
+          resolvedPath: (0, _path.resolve)(config.root, "./build"),
+          original: "./build"
         });
         if (!("volumes" in config) || typeof config.volumes === 'undefined') config.volumes = [];
         const realRoot = (0, _fs.realpathSync)(config.root);
